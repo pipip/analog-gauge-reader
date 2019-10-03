@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 import argparse
 
+debug = False
+
 def avg_circles(circles, b):
     avg_x=0
     avg_y=0
@@ -100,8 +102,6 @@ def calibrate_gauge(img, gauge_pixels_radius):
     return x, y, r
 
 def get_current_value(img, min_angle, max_angle, min_value, max_value, gauge_pixels_radius):
-    debug = True
-
     x, y, r = find_gauge(img, gauge_pixels_radius)
 
     gray2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -218,7 +218,7 @@ def main():
     required = parser.add_argument_group('required arguments')
     parser.add_argument('filename', metavar='filename', type=argparse.FileType('r'),
                     help='file containing image of gauge')
-    parser.add_argument("--calibrate", help="Generate calibration image")
+    parser.add_argument("--calibrate", help="Generate calibration image", action='store_true')
     parser.add_argument("--gauge_radius", help="Aproximate radius of the gauge in pixels", type=int, required=True)
 
     opts, rem_args = parser.parse_known_args()
