@@ -13,7 +13,11 @@ calibrated values in the measurement stage to convert the angle of the dial into
 ## Setup
 1. Take a picture of a gauge.
 2. measure the rough size of the gauge in pixels using an image editor.
-3. Run the application `python analog_gauge_reader.py --calibrate` and take note of the minimum and maximum values (angles and values) 
+3. Run the application `python analog_gauge_reader.py --calibrate --gauge_radius x` and take note of the minimum and maximum values (angles and values) 
+4. Examples: 
+   - `python analog_gauge_reader.py --calibrate --gauge_radius 135`
+   - `python analog_gauge_reader.py --gauge_radius 130 --min_angle 40 --max_angle 310 --min_value 0 --max_value 120`
+5. Enable debug mode in script to save debug pictures
 
 ### Optimization tips:
 If you're struggling to get your gauge to work, here are some tips:
