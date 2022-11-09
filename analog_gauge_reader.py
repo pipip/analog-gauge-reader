@@ -1,4 +1,7 @@
 '''  
+Copyright (c) 2022 Philipp Schroeder.
+Licensed under the MIT lincense.
+
 Copyright (c) 2019 Diogo Gomes.
 Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -9,8 +12,19 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 import cv2
 import numpy as np
 import argparse
+import urllib.request
 
 debug = False
+
+
+# Download image
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read it into OpenCV format
+    #resp = urllib.urlopen(url)
+    resp = urllib.request.urlopen(url)
+    image = np.asarray(bytearray(resp.read()), dtype="uint8")
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    return image
 
 def avg_circles(circles, b):
     avg_x=0
@@ -33,10 +47,11 @@ def find_gauge(img, gauge_pixels_radius):
     height, width = img.shape[:2]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  #convert to gray
     #gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    # gray = cv2.medianBlur(gray, 5)
+    #gray = cv2.medianBlur(gray, 5)
 
     #for testing, output gray image
-    #cv2.imwrite('gauge-%s-bw.%s' %(gauge_number, file_type),gray)
+    if debug:
+        cv2.imwrite('/work/images/img_debug_gauge.jpg', gray)
 
     #detect circles
     #restricting the search from 35-48% of the possible radii gives fairly good results across different samples.  Remember that
@@ -53,10 +68,6 @@ def calibrate_gauge(img, gauge_pixels_radius):
     #draw center and circle
     cv2.circle(img, (x, y), r, (0, 0, 255), 3, cv2.LINE_AA)  # draw circle
     cv2.circle(img, (x, y), 2, (0, 255, 0), 3, cv2.LINE_AA)  # draw center of circle
-
-    #for testing, output circles on image
-    #cv2.imwrite('gauge-%s-circles.%s' % (gauge_number, file_type), img)
-
 
     #for calibration, plot lines from center going out at every 10 degrees and add marker
     #for i from 0 to 36 (every 10 deg)
@@ -95,9 +106,8 @@ def calibrate_gauge(img, gauge_pixels_radius):
         cv2.line(img, (int(p1[i][0]), int(p1[i][1])), (int(p2[i][0]), int(p2[i][1])),(0, 255, 0), 2)
         cv2.putText(img, '%s' %(int(i*separation)), (int(p_text[i][0]), int(p_text[i][1])), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,0),1,cv2.LINE_AA)
 
-    cv2.imshow('Calibration', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # Write Image
+    cv2.imwrite('/work/images/img_calibration.jpg', img)
 
     return x, y, r
 
@@ -146,14 +156,14 @@ def get_current_value(img, min_angle, max_angle, min_value, max_value, gauge_pix
 
 
     if debug:
-
-        #show all lines 
+        #show all lines
         for i in range(0,len(lines)):
             for x1, y1, x2, y2 in lines[i]:
                 cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        cv2.imshow('Show line', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow('Show line', img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        cv2.imwrite('/work/images/img_debug1.jpg', img)
 
     if not len(final_line_list):
         raise Exception("Could not detect any gauge line")
@@ -168,9 +178,10 @@ def get_current_value(img, min_angle, max_angle, min_value, max_value, gauge_pix
         cv2.circle(img, (x, y), r, (0, 0, 255), 3, cv2.LINE_AA)  # draw circle
         cv2.circle(img, (x, y), 2, (0, 0, 255), 3, cv2.LINE_AA)  # draw center of circle
 
-        cv2.imshow('Show line', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow('Show line', img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        cv2.imwrite('/work/images/img_debug2.jpg', img)
 
 
     #find the farthest point from the center to be what is used to determine the angle
@@ -216,8 +227,8 @@ def get_current_value(img, min_angle, max_angle, min_value, max_value, gauge_pix
 def main():
     parser = argparse.ArgumentParser()
     required = parser.add_argument_group('required arguments')
-    parser.add_argument('filename', metavar='filename', type=argparse.FileType('r'),
-                    help='file containing image of gauge')
+    #parser.add_argument('filename', metavar='filename', type=argparse.FileType('r'), help='file containing image of gauge')
+    #parser.add_argument('url', help='URL to image of gauge')
     parser.add_argument("--calibrate", help="Generate calibration image", action='store_true')
     parser.add_argument("--gauge_radius", help="Aproximate radius of the gauge in pixels", type=int, required=True)
 
@@ -231,7 +242,9 @@ def main():
 
     args = parser.parse_args()
 
-    img = cv2.imread(args.filename.name)
+    #img = cv2.imread(args.filename.name)
+    #img = url_to_image(arg.url)
+    img = url_to_image('http://xxx.xxx.xxx.xxx:8081')
 
     if args.calibrate:
         calibrate_gauge(img, args.gauge_radius)
@@ -242,9 +255,9 @@ def main():
     except Exception as e:
         print(e)
         return
-    print(f"Angle: {ang}")
-    print(f"Current reading: {val}")
+    #print(f"Angle: {ang}")
+    print(f"{val}")
 
 if __name__=='__main__':
     main()
-   	
+
