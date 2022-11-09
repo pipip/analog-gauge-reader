@@ -11,8 +11,8 @@ calibrated values in the measurement stage to convert the angle of the dial into
   *	An image of a gauge (or you can use the sample one provided)
 
 ## Setup
-1. Add the URL of your camera providing an image (eg. ESPHome on ESP32-Cam: img = url_to_image('http://xxx.xxx.xxx.xxx:8081') 
-2. Enable debug mode in script to save debug pictures (to make sure your parametree ers are fine)
+1. Add the URL of your camera providing an image (eg. ESPHome on ESP32-Cam: `img = url_to_image('http://xxx.xxx.xxx.xxx:8081')` 
+2. Enable debug mode in script to save debug pictures (to make sure your parameters are fine)
 3. Measure/Guess the rough size of the gauge in pixels using an image editor.
 4. Run the application `python analog_gauge_reader.py --calibrate --gauge_radius x` and take note of the minimum and maximum values (angles and values) 
 5. Examples: 
